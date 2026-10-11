@@ -1,60 +1,89 @@
----
 services:
   db:
-    image: shaikmustafa/arshad:db
-    deploy:
-      replicas: 1
+    image: rajeshrayudu2022/library-app:database
     ports:
       - "3306:3306"
+    volumes:
+      - mydata:/mydata
     networks:
-      - mynetwork
-
-  auth_service:
-    image: shaikmustafa/arshad:auth
+      - myapp
     deploy:
       replicas: 1
+      resources:
+        reservations:
+          cpus: "0.25"
+          memory: 200M
+        limits:
+          cpus: "0.5"
+          memory: 4000M
+
+  auth_service:
+    image: rajeshrayudu2022/library-app:auth-service
     ports:
       - "5001:5001"
     networks:
-      - mynetwork
-    depends_on:
-      - db
-    
+      - myapp
+    deploy:
+      replicas: 2
+      resources:
+        reservations:
+          cpus: "0.25"
+          memory: 200M
+        limits:
+          cpus: "0.5"
+          memory: 4000M
 
   book_service:
-    image: shaikmustafa/arshad:book
-    deploy:
-      replicas: 1
+    image: rajeshrayudu2022/library-app:book-service
     ports:
       - "5002:5002"
     networks:
-      - mynetwork
-    depends_on:
-      - db
-  borrow_service:
-    image: shaikmustafa/arshad:borrow
+      - myapp
     deploy:
-      replicas: 1
+      replicas: 2
+      resources:
+        reservations:
+          cpus: "0.25"
+          memory: 200M
+        limits:
+          cpus: "0.5"
+          memory: 4000M
+
+  borrow_service:
+    image: rajeshrayudu2022/library-app:borrow-service
     ports:
       - "5003:5003"
     networks:
-      - mynetwork
-    depends_on:
-      - db
+      - myapp
+    deploy:
+      replicas: 2
+      resources:
+        reservations:
+          cpus: "0.25"
+          memory: 200M
+        limits:
+          cpus: "0.5"
+          memory: 4000M
 
   frontend:
-    image: shaikmustafa/arshad:frontend
-    deploy:
-      replicas: 1
+    image: rajeshrayudu2022/library-app:frontend
     ports:
       - "5000:5000"
     networks:
-      - mynetwork
-    depends_on:
-      - auth_service
-      - book_service
-      - borrow_service
+      - myapp
+    deploy:
+      replicas: 2
+      resources:
+        reservations:
+          cpus: "0.25"
+          memory: 200M
+        limits:
+          cpus: "0.5"
+          memory: 4000M
+
+volumes:
+  mydata:
 
 networks:
-  mynetwork:
-    driver: bridge
+  myapp:
+    driver: overlay
